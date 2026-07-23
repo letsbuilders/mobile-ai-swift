@@ -5,6 +5,7 @@
 //  Created by Marzena on 07/07/2026.
 //
 
+#if !os(macOS)
 import Speech
 
 public extension SpeechEngine {
@@ -147,3 +148,4 @@ public class BetterSpeechEngine {
         }
     }
 }
+#endif

@@ -5,6 +5,7 @@
 //  Created by Marzena on 07/07/2026.
 //
 
+#if !os(macOS)
 import SwiftUI
 
 public struct SpeechButton: View {
@@ -54,3 +55,4 @@ public extension SpeechButton {
             }
     }
 }
+#endif

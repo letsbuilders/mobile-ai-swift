@@ -7,6 +7,7 @@
 
 import FoundationModels
 
+@available(macOS 26.0, *)
 @available(iOS 26.0, *)
 public final class AppleIntelligence: Sendable, AIService {
     let session: LanguageModelSession
@@ -32,6 +33,7 @@ public final class AppleIntelligence: Sendable, AIService {
     }
 }
 
+@available(macOS 26.0, *)
 @available(iOS 26.0, *)
 extension LanguageModelSession.Response where Content == String {
     func asAIResponse() -> AIResponse {

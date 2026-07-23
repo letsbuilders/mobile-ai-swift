@@ -4,7 +4,7 @@
 //
 //  Created by Marzena on 06/07/2026.
 //
-
+#if !os(macOS)
 import Speech
 import SwiftUI
 
@@ -87,6 +87,7 @@ public final actor SpeechRecognizer: Sendable, Loggable {
 
     }
 
+    @MainActor
     public func requestAuthorization() async -> Bool {
         let isGranted = await withCheckedContinuation { continuation in
             SFSpeechRecognizer.requestAuthorization { status in
@@ -102,14 +103,17 @@ public final actor SpeechRecognizer: Sendable, Loggable {
             }
         }
 
-        if isGranted {
-            self.recognizer = SFSpeechRecognizer(locale: .current)
-        }
+        await createRecognizer()
+
         await MainActor.run {
             state.isAuthorized = isGranted
         }
 
         return isGranted
+    }
+
+    private func createRecognizer() {
+        self.recognizer = SFSpeechRecognizer(locale: .current)
     }
 }
 
@@ -142,7 +146,7 @@ final actor InactivityTimer: Sendable, Loggable {
                     info("Inavity detected")
                     onInactivity()
                     Task {
-                        await invalidate()
+                        await self.invalidate()
                     }
                 }
             })
@@ -158,3 +162,4 @@ final actor InactivityTimer: Sendable, Loggable {
         }
     }
 }
+#endif

@@ -12,6 +12,7 @@ public struct SpeechTextField: View, Loggable {
     @Binding var text: String
 
     @State private var textFieldContent: String = ""
+    @State private var buttonContent: String = ""
     @State private var showPermissionAlert = false
     @FocusState private var isFocused: Bool
 
@@ -27,15 +28,19 @@ public struct SpeechTextField: View, Loggable {
                 .submitLabel(.done)
                 .focused($isFocused)
                 .onSubmit {
+                    Log.info(Self.self, "Submit content from field: \(textFieldContent)")
                     self.text = textFieldContent
                 }
-                .roundedBackground(color: Color(.secondarySystemBackground), borderColor: isFocused ? Color.accentColor : Color.clear)
+                .style(isFocused: isFocused)
                 .animation(.easeOut(duration: 0.15), value: isFocused)
 
-            SpeechButton(text: $textFieldContent)
+#if !os(macOS)
+            SpeechButton(text: $buttonContent)
                 .onSubmit { text in
+                    Log.info(Self.self, "Submit content from speech button: \(text)")
                     self.text = text
                 }
+#endif
         }
         .onChange(of: text) { oldValue, newValue in
             if textFieldContent != newValue {
@@ -51,6 +56,16 @@ public extension SpeechTextField {
             .onChange(of: text) { text in
                 action(text)
             }
+    }
+}
+
+private extension View {
+    func style(isFocused: Bool) -> some View {
+        #if !os(macOS)
+            self.roundedBackground(color: Color(.secondarySystemBackground), borderColor: isFocused ? Color.accentColor : Color.clear)
+        #else
+            self
+        #endif
     }
 }
 
