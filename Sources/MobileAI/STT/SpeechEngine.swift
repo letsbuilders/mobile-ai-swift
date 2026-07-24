@@ -51,7 +51,7 @@ public actor SpeechEngine: ObservableObject, Loggable {
 
         try await checkTime("Audio session") {
             do {
-                try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+                try audioSession.setCategory(.playAndRecord, mode: .measurement, options: .mixWithOthers)
                 try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             } catch {
                 throw(error)
@@ -77,6 +77,8 @@ public actor SpeechEngine: ObservableObject, Loggable {
                 request.append(buffer)
             }
         }
+
+        await SystemSoundPlayer.shared.playAlertSound(soundID: 1113)
 
         await checkTime("Prepare engine") {
             engine.prepare()
@@ -115,6 +117,8 @@ public actor SpeechEngine: ObservableObject, Loggable {
             }
         }
 
+        await SystemSoundPlayer.shared.playSystemSound(soundID: 1114)
+
         defer {
             isTranscribing = false
             info("Recognition task finished: \(result)")
@@ -148,4 +152,5 @@ public class BetterSpeechEngine {
         }
     }
 }
+
 #endif

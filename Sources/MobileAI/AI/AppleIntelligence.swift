@@ -9,7 +9,7 @@ import FoundationModels
 
 @available(macOS 26.0, *)
 @available(iOS 26.0, *)
-public final class AppleIntelligence: Sendable, AIService {
+public final class AppleIntelligence: Sendable, AIService, Loggable {
     let session: LanguageModelSession
 
     public init(instructions: String = "") throws {
@@ -21,12 +21,11 @@ public final class AppleIntelligence: Sendable, AIService {
     }
 
     public func respond(to prompt: String) async throws -> AIResponse {
+        info("Prompt: \(prompt)")
         let response = try await session.respond(to: prompt)
-        print("Content: \(response.content)")
-        print("Raw content: \(response.rawContent)")
 
         for entry in response.transcriptEntries {
-            print("Entry: \(entry.id): \(entry.description)")
+            info("AI: \(entry.id)\n\(entry.description)")
         }
 
         return response.asAIResponse()

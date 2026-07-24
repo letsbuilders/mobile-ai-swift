@@ -38,6 +38,7 @@ public struct SpeechTextField: View, Loggable {
             SpeechButton(text: $buttonContent)
                 .onSubmit { text in
                     Log.info(Self.self, "Submit content from speech button: \(text)")
+                    self.textFieldContent = text
                     self.text = text
                 }
 #endif

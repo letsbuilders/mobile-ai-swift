@@ -9,64 +9,24 @@ import SwiftUI
 
 @available(iOS 26.0, *)
 public struct AIChat: View {
-    @State private var prompt: String = ""
-    @State private var chat: [TextEntry]
-    @State private var isRunning = false
-    @FocusState private var isFocused: Bool
-    private var aiService: AIService
+    @State private var model: AIModel
 
     public init(aiService: AIService,
                 chat: [TextEntry] = []) {
-        self.aiService = aiService
-        self.chat = chat
+        self.model = AIModel(service: aiService)
     }
 
     public var body: some View {
         VStack(alignment: .leading) {
             ScrollView {
-                ForEach(chat) { textEntry in
-                    if textEntry.author == .me {
-                        HStack {
-                            Spacer()
-                            Text(textEntry.text)
-                                .roundedBackground(color: .black.opacity(0.05))
-                                .padding(.leading, 40)
-                        }
-                    } else {
-                        if let markdown = try? AttributedString(markdown: textEntry.text, options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
-                            Text(markdown)
-                        } else {
-                            Text(textEntry.text)
-                        }
-                    }
-                }
+                AIChatHistoryView(history: $model.history)
+                    .frame(maxWidth: .infinity)
             }
             .defaultScrollAnchor(.bottom)
 
-            if isRunning {
-                ProgressView()
-                    .padding()
-                    .fillHorizontally()
-            }
-
             Spacer()
 
-            SpeechTextField(text: $prompt)
-                .onSubmit { prompt in
-                    guard !prompt.isEmpty else { return }
-                    print("Prompt: \(prompt)")
-                    Task {
-                        chat.append(TextEntry(author: .me, text: prompt))
-                        self.prompt = ""
-
-                        isRunning = true
-                        let response = try await aiService.respond(to: prompt)
-                        defer {
-                            isRunning = false
-                        }
-                        chat.append(TextEntry(author: .ai, text: response.content))
-                    }
-                }
+            AITextField(model: model)
         }
         .padding()
     }
@@ -80,18 +40,6 @@ public extension View {
             Spacer()
         }
     }
-}
-
-public struct TextEntry: Identifiable {
-    public var id: String = UUID().uuidString
-    public var author: Author
-    public var text: String
-}
-
-public typealias Author = String
-public extension Author {
-    static var me: Author { "ME" }
-    static var ai: Author { "AI" }
 }
 
 #Preview {

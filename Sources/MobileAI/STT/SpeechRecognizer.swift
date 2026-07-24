@@ -5,6 +5,7 @@
 //  Created by Marzena on 06/07/2026.
 //
 #if !os(macOS)
+import AudioToolbox
 import Speech
 import SwiftUI
 
@@ -61,7 +62,9 @@ public final actor SpeechRecognizer: Sendable, Loggable {
         }
 
         info("Start")
+
         let result = try await engine.transcribe(onReady: { @MainActor @Sendable in
+            self.info("Ready")
             self.state.isRecording = true
         }, onResult: { @Sendable (text, isFinished) in
             Log.info(Self.self, "Result \(isFinished): \(text)")
