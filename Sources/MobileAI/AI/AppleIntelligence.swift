@@ -6,19 +6,40 @@
 //
 
 import FoundationModels
+import SwiftUI
 
 @available(macOS 26.0, *)
 @available(iOS 26.0, *)
 public final class AppleIntelligence: Sendable, AIService, Loggable {
-    let session: LanguageModelSession
-
-    public init(instructions: String = "") throws {
+    public init() throws {
         guard SystemLanguageModel.default.isAvailable else {
             throw AIError.notSupported("AI not available (\(SystemLanguageModel.default.availability))")
         }
-
-        self.session = LanguageModelSession(instructions: { instructions })
     }
+
+    public func downloadModel(_ progressBlock: @escaping (Progress) -> Void) async throws {
+        let progress = Progress(totalUnitCount: 100)
+        progress.completedUnitCount = 100
+        progressBlock(progress)
+    }
+
+    public func startSession(instructions: String) throws -> AISession {
+        Session(session: LanguageModelSession(instructions: { instructions }))
+    }
+}
+
+@available(macOS 26.0, *)
+@available(iOS 26.0, *)
+extension LanguageModelSession.Response where Content == String {
+    func asAIResponse() -> AIResponse {
+        AIResponse(content: self.content)
+    }
+}
+
+@available(macOS 26.0, *)
+@available(iOS 26.0, *)
+private struct Session: AISession, Loggable  {
+    var session: LanguageModelSession
 
     public func respond(to prompt: String) async throws -> AIResponse {
         info("Prompt: \(prompt)")
@@ -29,13 +50,5 @@ public final class AppleIntelligence: Sendable, AIService, Loggable {
         }
 
         return response.asAIResponse()
-    }
-}
-
-@available(macOS 26.0, *)
-@available(iOS 26.0, *)
-extension LanguageModelSession.Response where Content == String {
-    func asAIResponse() -> AIResponse {
-        AIResponse(content: self.content)
     }
 }

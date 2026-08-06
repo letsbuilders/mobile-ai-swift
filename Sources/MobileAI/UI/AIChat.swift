@@ -11,7 +11,7 @@ import SwiftUI
 public struct AIChat: View {
     @State private var model: AIModel
 
-    public init(aiService: AIService,
+    public init(aiService: AIService?,
                 chat: [TextEntry] = []) {
         self.model = AIModel(service: aiService)
     }
@@ -26,7 +26,10 @@ public struct AIChat: View {
 
             Spacer()
 
-            AITextField(model: model)
+            AIModelSelector(service: $model.service)
+            if let service = model.service {
+                AITextField(model: model)
+            }
         }
         .padding()
     }

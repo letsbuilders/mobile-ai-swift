@@ -11,6 +11,7 @@ public struct AITextField: View {
     @State private var prompt: String = ""
     @State private var history: [TextEntry] = []
     @State private var isHistoryPresented = false
+    @State private var isInstructionPresented = false
     @State private var model: AIModel
 
     public init(model: AIModel) {
@@ -23,20 +24,28 @@ public struct AITextField: View {
 
     public var body: some View {
         HStack {
-            SpeechTextField("Enter prompt for AI or speak using microphone",
+            SpeechTextField(model.isInitialized ? "Enter prompt for AI or use microphone" : "Enter instructions for AI or use microphone",
                             text: $prompt)
             .onSubmit { prompt in
                 guard !prompt.isEmpty else { return }
                 Task {
-                    try await model.submitPrompt(prompt)
                     await MainActor.run {
                         self.prompt = ""
                     }
+                    try await model.submitPrompt(prompt)
                 }
             }
 
             Button {
                 isHistoryPresented = true
+            } label: {
+                Image(systemName: "clock.arrow.circlepath")
+                    .foregroundStyle(.tint)
+            }
+            .buttonStyle(.plain)
+
+            Button {
+                isInstructionPresented = true
             } label: {
                 Image(systemName: "list.clipboard")
                     .foregroundStyle(.tint)
@@ -45,32 +54,36 @@ public struct AITextField: View {
 
             if model.isProcessing {
                 ProgressView()
-                    .frame(width: 16, height: 16)
+                    .progressViewStyle(.circular)
+                    .controlSize(.small)
             }
         }
-        .sheet(isPresented: $isHistoryPresented, content: {
-            NavigationStack {
-                ScrollView {
-                    AIChatHistoryView(history: $model.history)
-                        .padding()
-                }
-                .defaultScrollAnchor(.bottom)
+        .popoverSheet(isPresented: $isHistoryPresented, content: {
+            AIChatHistoryView(history: $model.history)
                 .navigationTitle("History")
-#if !os(macOS)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbarBackground(.clear, for: .navigationBar)
-#endif
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button {
-                            isHistoryPresented = false
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
         })
+        .popoverSheet(isPresented: $isInstructionPresented, content: {
+            TextField("Enter instructions for AI", text: $model.instructions, axis: .vertical)
+                .lineLimit(3...8)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit {
+                    isInstructionPresented = false
+                }
+                .onAppear {
+                    model.reset()
+                }
+                .navigationTitle("AI Instructions")
+        })
+    }
+}
+
+extension View {
+    func popoverSheet<Content: View>(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) -> some View {
+        self
+            .sheet(isPresented: isPresented, content: {
+                Popover(isPresented: isPresented) {
+                    content()
+                }
+            })
     }
 }

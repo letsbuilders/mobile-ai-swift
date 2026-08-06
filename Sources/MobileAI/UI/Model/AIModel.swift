@@ -14,50 +14,74 @@ public class AIModel {
     public var isProcessing = false
     public var history: [TextEntry] = []
     public var adjustPrompt: (String) -> String
-    public var instructions: String?
+    public var instructions: String = ""
+    public var isDownloaded: Bool = false
+    public var isInitialized: Bool = false
 
-    private var service: AIService?
-    private var isInitialized: Bool = false
+    public var service: AIService?
+    private var session: AISession?
 
     public init(service: AIService? = nil,
-                instructions: String? = nil,
+                instructions: String = "",
                 adjustPrompt: @escaping (String) -> String = { $0 }) {
         self.service = service
         self.instructions = instructions
         self.adjustPrompt = adjustPrompt
+
+        observeService()
+    }
+
+    private func observeService() {
+        withObservationTracking {
+            _ = service
+        } onChange: {
+            print("Changed service \(self.service)")
+            self.reset()
+            self.observeService()
+        }
+    }
+
+    public func reset() {
+        self.session = nil
+        self.isInitialized = false
+        self.history = []
     }
 
     public func submitPrompt(_ prompt: String) async throws {
-        guard isProcessing == false else { return }
+        guard isProcessing == false, let service else { return }
+
+        if session == nil {
+            session = try service.startSession(instructions: instructions)
+            if instructions.isEmpty == false {
+                history.append(TextEntry(author: .me, text: instructions))
+            }
+            isInitialized = true
+        }
 
         isProcessing = true
         defer { isProcessing = false }
 
-        var fullPrompt = prompt
-        if isInitialized {
-            fullPrompt = adjustPrompt(prompt)
-        } else {
-            if let instructions {
-                fullPrompt = instructions
-                fullPrompt += "\n"
-                fullPrompt += adjustPrompt(prompt)
+        var fullPrompt = adjustPrompt(prompt)
+
+        if let session {
+            let date = Date.now
+            do {
+                history.append(TextEntry(author: .me, text: fullPrompt))
+                let response = try await session.respond(to: fullPrompt)
+                history.append(TextEntry(time: Date.now.timeIntervalSince(date), author: .ai, text: response.content))
+                responsePublisher.send(response.content)
+            } catch {
+                history.append(TextEntry(time: Date.now.timeIntervalSince(date), author: .ai, error: error, text: ""))
             }
-
-            isInitialized = true
-        }
-
-        if let service {
-            let response = try await service.respond(to: fullPrompt)
-            history.append(TextEntry(author: .me, text: fullPrompt))
-            history.append(TextEntry(author: .ai, text: response.content))
-            responsePublisher.send(response.content)
         }
     }
 }
 
 public struct TextEntry: Identifiable {
     public var id: String = UUID().uuidString
+    public var time: TimeInterval = 0
     public var author: Author
+    public var error: Error? = nil
     public var text: String
 }
 
