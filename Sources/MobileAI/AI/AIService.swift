@@ -20,6 +20,10 @@ public struct AIResponse {
     public var content: String
 }
 
-public enum AIError: Error {
+public enum AIError: LocalizedError {
     case notSupported(_ reason: String)
+
+    public var errorDescription: String? {
+        return String(reflecting: self)
+    }
 }
