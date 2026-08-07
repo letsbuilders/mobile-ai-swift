@@ -26,10 +26,7 @@ public struct AIChat: View {
 
             Spacer()
 
-            AIModelSelector(service: $model.service)
-            if let service = model.service {
-                AITextField(model: model)
-            }
+            AIComplexTextField(model: $model)
         }
         .padding()
     }

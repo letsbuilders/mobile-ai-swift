@@ -12,14 +12,10 @@ public struct AITextField: View {
     @State private var history: [TextEntry] = []
     @State private var isHistoryPresented = false
     @State private var isInstructionPresented = false
-    @State private var model: AIModel
+    @Binding private var model: AIModel
 
-    public init(model: AIModel) {
-        self.model = model
-    }
-
-    public init(service: AIService? = nil) {
-        model = .init(service: service)
+    public init(model: Binding<AIModel>) {
+        self._model = model
     }
 
     public var body: some View {

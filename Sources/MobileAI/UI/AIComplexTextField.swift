@@ -8,21 +8,22 @@
 import SwiftUI
 
 public struct AIComplexTextField: View {
-    @State var service: AIService?
-    @State var progress: Progress = Progress()
+    @Binding private var model: AIModel
 
-    public init() {}
+    public init(model: Binding<AIModel>) {
+        self._model = model
+    }
 
     public var body: some View {
         VStack {
-            AIModelSelector(service: $service)
-            if let service {
-                AITextField(service: service)
+            AIModelSelector(service: $model.service)
+            if model.service != nil {
+                AITextField(model: $model)
             }
         }
     }
 }
 
 #Preview {
-    AIComplexTextField()
+    AIComplexTextField(model: .constant(.init()))
 }
