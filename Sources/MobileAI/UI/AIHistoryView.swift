@@ -28,6 +28,7 @@ public struct AIChatHistoryView: View {
                     HStack {
                         Spacer()
                         Text(textEntry.text)
+                            .textSelection(.enabled)
                             .roundedBackground(color: .black.opacity(0.05))
                             .padding(.leading, 40)
                     }
@@ -36,12 +37,15 @@ public struct AIChatHistoryView: View {
                         .font(.footnote)
                     if let error = textEntry.error {
                         Text(error.localizedDescription)
+                            .textSelection(.enabled)
                             .foregroundStyle(Color.red)
                     } else {
                         if let markdown = try? AttributedString(markdown: textEntry.text, options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
                             Text(markdown)
+                                .textSelection(.enabled)
                         } else {
                             Text(textEntry.text)
+                                .textSelection(.enabled)
                         }
                     }
                 }

@@ -21,6 +21,7 @@ public struct AIModelSelector: View {
         do {
             self.kind = kind
             self.service = nil
+            self.error = nil
             self.progress = Progress(totalUnitCount: 1)
 
             let service = try AIServiceFactory.make(kind: kind)
@@ -66,6 +67,7 @@ public struct AIModelSelector: View {
                 Text(error.localizedDescription)
                     .bold()
                     .foregroundStyle(.red)
+                    .textSelection(.enabled)
             } else if progress.isFinished == false {
                 ProgressView(progress)
             } else {

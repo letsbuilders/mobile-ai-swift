@@ -65,11 +65,13 @@ public struct AITextField: View {
                 .onSubmit {
                     isInstructionPresented = false
                 }
-                .onAppear {
-                    model.reset()
-                }
                 .navigationTitle("AI Instructions")
         })
+        .onChange(of: model.instructions) { oldValue, newValue in
+            if oldValue != newValue {
+                model.reset()
+            }
+        }
     }
 }
 

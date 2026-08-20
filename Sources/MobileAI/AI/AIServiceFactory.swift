@@ -9,7 +9,7 @@ import MLXLLM
 
 public enum AIModelKind: String, CaseIterable, Identifiable {
     case appleIntelligence = "Apple Intelligence"
-    case gemma = "Gemma 4 (4B) - 5.18GB"
+    case gemma = "Gemma 2 (2B) - 1.5GB"
     case llama = "Llama 3.2 (3B) - 1.82GB"
     case phi = "Phi 3.5 (3.8B) - 2.15GB"
     case qwen = "Qwen 3 (4B) - 2.28GB"
@@ -29,7 +29,7 @@ public class AIServiceFactory {
             } else {
                 throw AIError.notSupported("Available only for iOS 26.0+")
             }
-        case .gemma: MLXManager(config: LLMRegistry.gemma4_e4b_it_4bit)
+        case .gemma: MLXManager(config: LLMRegistry.gemma4_e2b_it_4bit)
         case .phi: MLXManager(config: LLMRegistry.phi3_5_4bit)
         case .llama: MLXManager(config: LLMRegistry.llama3_2_3B_4bit)
         case .qwen: MLXManager(config: LLMRegistry.qwen3_4b_4bit)

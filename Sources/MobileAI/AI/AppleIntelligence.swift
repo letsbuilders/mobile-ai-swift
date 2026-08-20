@@ -24,7 +24,8 @@ public final class AppleIntelligence: Sendable, AIService, Loggable {
     }
 
     public func startSession(instructions: String) throws -> AISession {
-        Session(session: LanguageModelSession(instructions: { instructions }))
+        info("Instructions: \(instructions)")
+        return Session(session: LanguageModelSession(instructions: { instructions }))
     }
 }
 
@@ -43,12 +44,17 @@ private struct Session: AISession, Loggable  {
 
     public func respond(to prompt: String) async throws -> AIResponse {
         info("Prompt: \(prompt)")
-        let response = try await session.respond(to: prompt)
+        do {
+            let response = try await session.respond(to: prompt)
 
-        for entry in response.transcriptEntries {
-            info("AI: \(entry.id)\n\(entry.description)")
+            for entry in response.transcriptEntries {
+                info("AI: \(entry.id)\n\(entry.description)")
+            }
+
+            return response.asAIResponse()
+        } catch {
+            self.error(error, in: "session.respond(to:)")
+            throw error
         }
-
-        return response.asAIResponse()
     }
 }

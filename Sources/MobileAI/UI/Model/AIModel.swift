@@ -22,13 +22,14 @@ public class AIModel {
     private var session: AISession?
 
     public init(service: AIService? = nil,
-                instructions: String = "",
+                instructions: String? = nil,
                 adjustPrompt: @escaping (String) -> String = { $0 }) {
         self.service = service
-        self.instructions = instructions
+        self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
         self.adjustPrompt = adjustPrompt
 
         observeService()
+        observeInstructions()
     }
 
     private func observeService() {
@@ -38,6 +39,17 @@ public class AIModel {
             print("Changed service \(self.service)")
             self.reset()
             self.observeService()
+        }
+    }
+
+    private func observeInstructions() {
+        withObservationTracking {
+            instructions
+        } onChange: {
+            DispatchQueue.main.async {
+                UserDefaults.standard.set(self.instructions, forKey: "AI.Instructions")
+                self.observeInstructions()
+            }
         }
     }
 
