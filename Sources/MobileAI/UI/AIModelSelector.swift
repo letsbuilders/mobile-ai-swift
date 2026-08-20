@@ -48,12 +48,22 @@ public struct AIModelSelector: View {
         HStack {
             Menu {
                 ForEach(AIModelKind.allCases) { kind in
-                    Button(kind.rawValue) {
+                    Button {
                         select(kind: kind)
+                    } label: {
+                        Image(systemName: kind.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle")
+                        Text(kind.name)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .bold()
+                        .foregroundStyle(kind.isDownloaded ?.green : .white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(.gray)
+                        .clipShape(Capsule())
                     }
                 }
             } label: {
-                Text(kind.rawValue)
+                Text(kind.name)
                 .fixedSize(horizontal: true, vertical: false)
                 .bold()
                 .foregroundStyle(.white)
@@ -62,6 +72,7 @@ public struct AIModelSelector: View {
                 .background(.gray)
                 .clipShape(Capsule())
             }
+            .controlSize(ControlSize.large)
 
             if let error {
                 Text(error.localizedDescription)
