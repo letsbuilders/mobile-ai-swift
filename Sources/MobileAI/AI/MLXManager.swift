@@ -44,7 +44,7 @@ public class MLXManager: Loggable, AIService {
     }
 
     public func startSession(instructions: String, maxTokens: Int?) throws -> AISession {
-        Log.info(Self.self, "Starting session...")
+        Log.info(Self.self, "Starting session... Instructions: \(instructions.count). Max tokens: \(maxTokens ?? -1)")
 
         let parameters = GenerateParameters(
             maxTokens: maxTokens,
