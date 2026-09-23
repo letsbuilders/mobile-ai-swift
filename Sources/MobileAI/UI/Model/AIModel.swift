@@ -63,7 +63,7 @@ public class AIModel {
         guard isProcessing == false, let service else { return }
 
         if session == nil {
-            session = try service.startSession(instructions: instructions)
+            session = try service.startSession(instructions: self.instructions, maxTokens: nil)
             if instructions.isEmpty == false {
                 history.append(TextEntry(author: .me, text: instructions))
             }

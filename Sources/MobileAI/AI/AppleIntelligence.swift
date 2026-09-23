@@ -23,8 +23,8 @@ public final class AppleIntelligence: Sendable, AIService, Loggable {
         progressBlock(progress)
     }
 
-    public func startSession(instructions: String) throws -> AISession {
-        info("Instructions: \(instructions)")
+    public func startSession(instructions: String, maxTokens: Int?) throws -> AISession {
+        info("Instructions: \(instructions.replacingOccurrences(of: "\\n", with: "\n"))")
         return Session(session: LanguageModelSession(instructions: { instructions }))
     }
 }

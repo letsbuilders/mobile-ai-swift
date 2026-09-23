@@ -43,37 +43,15 @@ public class MLXManager: Loggable, AIService {
         progressBlock(progress)
     }
 
-    public func startSession(instructions: String) throws -> AISession {
-        Log.info(Self.self, "Downloading...")
-        var count = 0
+    public func startSession(instructions: String, maxTokens: Int?) throws -> AISession {
+        Log.info(Self.self, "Starting session...")
 
-        /*
-        let model = try await #huggingFaceLoadModelContainer(
-            configuration: phi4bit) { progress in
-                count += 1
-                Log.info(Self.self, "Progress \(progress)")
-            }
-         */
-        Log.info(Self.self, "Downloading done. \(count)")
+        let parameters = GenerateParameters(
+            maxTokens: maxTokens,
+            temperature: 0.6
+        )
 
-        /*
-        let instructions = """
-            You create Aproplan Note/Point draft fields from a user description and a catalog.
-            Return ONLY one JSON object (no markdown). Stop after the first closing brace. Exact keys only:
-            {"subject":string,"comment":string|null,"issueTypePath":string|null,"cellPath":string|null,"meetingLabel":string|null,"statusLabel":string|null,"dueDateOffsetDays":integer|null,"inChargeTags":[string],"isUrgent":boolean,"customFields":[{"name":string,"value":string}],"notes":string}
-
-            Hard rules:
-            - NEVER output UUIDs or YYYY-MM-DD. Use dueDateOffsetDays only when the user states a relative due date.
-            - If the user does NOT mention category/lot, location/room/building, list, status, due date, or priority: that field MUST be null (or [] for customFields). Do NOT invent or copy values from memory/examples.
-            - Catalog strings CHARACTER-FOR-CHARACTER when set. Never abbreviate tags. inChargeTags: at most 5 entries; never emit empty strings.
-            - meetingLabel: only if user names a list; use exact catalog.meetings[].label. Do not use Current meeting unless the user refers to it.
-            - statusLabel: only exact catalog.statuses[].label; Important is not a status.
-            - Priority words: set customFields Priority to last matching allowedValues; isUrgent from LAST priority word (important/high/urgent/critical=true; medium/low/normal=false). If no priority mentioned: customFields=[] and isUrgent=false.
-            - Subject = short title only; do not put assignee names in subject.
-            - Prefer null over guessing. One object only; no trailing commas; no repeated keys.
-            """
-         */
-        return Session(session: ChatSession(model, instructions: instructions))
+        return Session(session: ChatSession(model, instructions: instructions, generateParameters: parameters))
     }
 }
 
@@ -82,6 +60,7 @@ private struct Session: AISession {
 
     init(session: ChatSession) {
         self.session = session
+        print("Parameters \(session.generateParameters.temperature) \(session.generateParameters.maxTokens)")
     }
 
     public func respond(to prompt: String) async throws -> AIResponse {

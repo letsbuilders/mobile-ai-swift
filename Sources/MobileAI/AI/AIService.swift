@@ -9,7 +9,7 @@ import SwiftUI
 
 public nonisolated protocol AIService: Sendable {
     func downloadModel(_ progressBlock: @escaping (Progress) -> Void) async throws
-    func startSession(instructions: String) throws -> AISession
+    func startSession(instructions: String, maxTokens: Int?) throws -> AISession
 }
 
 public nonisolated protocol AISession: Sendable {

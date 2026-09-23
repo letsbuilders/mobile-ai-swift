@@ -10,7 +10,7 @@ import Hub
 import MLXLLM
 import MLXLMCommon
 
-public enum AIModelKind: CaseIterable, Identifiable {
+public enum AIModelKind: Sendable, CaseIterable, Identifiable {
     public static var allCases: [AIModelKind] {
         LLMRegistry.all().map { .mlx($0) } + [.appleIntelligence]
     }
@@ -30,9 +30,9 @@ public enum AIModelKind: CaseIterable, Identifiable {
         case .mlx(let config):
             var tokens = config.name.split(separator: "/")
             tokens.removeFirst()
-            return tokens.joined(separator: "/")
+            return tokens.joined(separator: "/").withIcon(isDownloaded: isDownloaded)
         default:
-            return id
+            return id.withIcon(isDownloaded: isDownloaded)
         }
     }
 
@@ -41,6 +41,12 @@ public enum AIModelKind: CaseIterable, Identifiable {
         case .appleIntelligence: "Apple Intelligence"
         case .mlx(let config): config.name
         }
+    }
+}
+
+private extension String {
+    func withIcon(isDownloaded: Bool) -> String {
+        (isDownloaded ? "\u{2705}" : "\u{2b07}") + " " + self
     }
 }
 

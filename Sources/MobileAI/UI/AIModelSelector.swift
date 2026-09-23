@@ -51,7 +51,6 @@ public struct AIModelSelector: View {
                     Button {
                         select(kind: kind)
                     } label: {
-                        Image(systemName: kind.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle")
                         Text(kind.name)
                         .fixedSize(horizontal: true, vertical: false)
                         .bold()
@@ -64,13 +63,6 @@ public struct AIModelSelector: View {
                 }
             } label: {
                 Text(kind.name)
-                .fixedSize(horizontal: true, vertical: false)
-                .bold()
-                .foregroundStyle(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(.gray)
-                .clipShape(Capsule())
             }
             .controlSize(ControlSize.large)
 
