@@ -1,0 +1,18 @@
+{
+    "prompt": "New point 'Scaffold inspection'. Assign to Bogdan, category 0.1 Worksite installation under Safety, status Blocked, due in 7 days, put on Public list, location Building 1 Hall, priority High.",
+    "date": "2026-09-01T00:00:00Z",
+    "instructionsFile": "point_instructions01.txt",
+    "catalogFile": "point_catalog02.txt",
+    "expected": {
+        "subject": "Scaffold inspection",
+        "status": "Blocked",
+        "isImportant": true,
+        "dueDate": "2026-09-08T00:00:00Z",
+        "usersInCharge": ["Bogdan"],
+        "workspace": "Public list",
+        "location": "Undefined",
+        "category": "Safety and Health|Worksite installation",
+        "room": "Building 1|Lobby",
+        "customFields": ["Priority|High"]
+    }
+}

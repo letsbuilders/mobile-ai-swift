@@ -35,6 +35,10 @@ let package = Package(
                 .product(name: "Tokenizers", package: "swift-transformers")
             ]
         ),
+        .testTarget(name: "MobileAITests",
+                    dependencies: [
+                        "MobileAI"
+                   ])
 
     ],
     swiftLanguageModes: [.v5]

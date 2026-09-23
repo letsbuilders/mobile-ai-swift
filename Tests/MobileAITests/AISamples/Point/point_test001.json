@@ -1,0 +1,18 @@
+{
+    "prompt": "Crack in the ceiling of the garage. Needs to be fixed until 2nd of November. Assign it to Marzena",
+    "date": "2026-09-01T00:00:00Z",
+    "instructionsFile": "point_instructions01.txt",
+    "catalogFile": "point_catalog01.txt",
+    "expected": {
+        "subject": "Crack in the ceiling of the garage",
+        "status": "In progress",
+        "isImportant": false,
+        "usersInCharge": ["Marzena"],
+        "dueDate": "2026-11-02T00:00:00Z",
+        "workspace": "Public list",
+        "category": "Shell|Concrete",
+        "location": "Ceiling",
+        "room": "Left Wing|Enclosed Garage",
+        "customFields": []
+    }
+}

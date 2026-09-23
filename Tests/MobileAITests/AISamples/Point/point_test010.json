@@ -1,0 +1,18 @@
+{
+    "prompt": "This needs attention quickly. Someone has removed one of the sprinkler heads on Building 2, fourth floor. I want it captured for client handover.",
+    "date": "2026-09-01T00:00:00Z",
+    "instructionsFile": "point_instructions01.txt",
+    "catalogFile": "point_catalog02.txt",
+    "expected": {
+        "subject": "Missing sprinkler head",
+        "status": "In progress",
+        "isImportant": true,
+        "dueDate": null,
+        "usersInCharge": [],
+        "workspace": "Client handover",
+        "location": "Unknown",
+        "category": "Special Techniques|Fire detection - Sprinklers",
+        "room": "Building 2|4th Floor",
+        "customFields": ["Priority|High"]
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "prompt": "Swimming pool floor is broken. Lilla should fix it until end of this week.",
+    "date": "2026-09-01T00:00:00Z",
+    "instructionsFile": "point_instructions01.txt",
+    "catalogFile": "point_catalog01.txt",
+    "expected": {
+        "subject": "Swimming pool floor is broken",
+        "status": "In progress",
+        "isImportant": false,
+        "dueDate": "2026-09-06T00:00:00Z",
+        "usersInCharge": ["Lilla Hale"],
+        "workspace": "Public list",
+        "location": "Floor",
+        "category": "Completion|Floor",
+        "room": "Center Wing|Swimming Pool",
+        "customFields": []
+    }
+}

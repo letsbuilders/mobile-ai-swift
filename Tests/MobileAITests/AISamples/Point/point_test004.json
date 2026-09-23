@@ -1,0 +1,18 @@
+{
+    "prompt": "Add point Crack in slab for Marzena.",
+    "date": "2026-09-01T00:00:00Z",
+    "instructionsFile": "point_instructions01.txt",
+    "catalogFile": "point_catalog02.txt",
+    "expected": {
+        "subject": "Crack in slab",
+        "status": "In progress",
+        "isImportant": false,
+        "dueDate": null,
+        "usersInCharge": ["Marzena"],
+        "workspace": "Public list",
+        "location": "Undefined",
+        "category": null,
+        "room": null,
+        "customFields": []
+    }
+}

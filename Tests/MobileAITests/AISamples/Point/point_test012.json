@@ -1,0 +1,18 @@
+{
+    "prompt": "The paint is peeling pretty badly here. Can you capture that under Quality?",
+    "date": "2026-09-01T00:00:00Z",
+    "instructionsFile": "point_instructions01.txt",
+    "catalogFile": "point_catalog02.txt",
+    "expected": {
+        "subject": "The paint is peeling pretty badly",
+        "status": "In progress",
+        "isImportant": false,
+        "dueDate": null,
+        "usersInCharge": [],
+        "workspace": "Quality",
+        "location": "Unknown",
+        "category": null,
+        "room": null,
+        "customFields": []
+    }
+}

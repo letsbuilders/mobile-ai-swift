@@ -1,0 +1,18 @@
+{
+    "prompt": "Building 3 ground floor. The site setup still isn't finished and there are several things missing. Put that in.",
+    "date": "2026-09-01T00:00:00Z",
+    "instructionsFile": "point_instructions01.txt",
+    "catalogFile": "point_catalog02.txt",
+    "expected": {
+        "subject": "Bulging formwork at lift core",
+        "status": "In progress",
+        "isImportant": false,
+        "dueDate": null,
+        "usersInCharge": [],
+        "workspace": "Public list",
+        "location": "Unknown",
+        "category": "Safety and Health|Worksite installation",
+        "room": "Building 3|Ground floor",
+        "customFields": []
+    }
+}

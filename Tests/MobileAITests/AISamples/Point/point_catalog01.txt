@@ -1,0 +1,64 @@
+- isImportant field values:
+    false (default)
+    true
+
+- status field values:
+    "In progress" (default)
+    "Done"
+    "Checked"
+    "Closed"
+    "Planned"
+    "Cancelled"
+    "Impossible to repair"
+    "Refused"
+    "In observation"
+    "For information"
+    "Risk low"
+    "Risk moderate"
+    "Risk high"
+
+- workspace field values:
+    "Public list" (default)
+    "Private list"
+
+- category field values:
+    "General|Administration"
+    "General|Proprety"
+    "Shell|Demolition"
+    "Shell|Concrete"
+    "Shell|Roofing"
+    "Shell|Stability"
+    "Technics|HVAC"
+    "Technics|Electricity"
+    "Technics|Sanitary"
+    "Completion|Floor"
+    "Completion|Wall"
+    "Completion|interior joinery"
+    "Completion|Exterior joinery"
+    "Completion|Painting"
+    "Various|Security"
+
+- room field values:
+    "Left Wing|Driveway / Garage Road"
+    "Left Wing|Enclosed Garage"
+    "Left Wing|Solar Panel Roof Deck"
+    "Center Wing|Main Ground Living Area"
+    "Center Wing|Upper Main House / Bedrooms"
+    "Center Wing|Main High-Pitched Roof"
+    "Center Wing|Central Courtyard / Pool Deck"
+    "Center Wing|Swimming Pool"
+    "Right Wing|Pool Pavilion / Ground Lounge"
+    "Right Wing|Pavilion Roof Terrace"
+
+- usersInCharge field values:
+    "Lilla Hale"
+    "John"
+    "Marzena"
+
+- location field values:
+    "Undefined" (default)
+    "Floor"
+    "Wall"
+    "Ceiling"
+
+- customFields field values: none (always use empty array [])
