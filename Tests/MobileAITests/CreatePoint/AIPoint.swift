@@ -8,7 +8,6 @@
 import Foundation
 import FoundationModels
 
-@Generable
 struct AIPoint: Codable {
     var response: String? = nil
     var runningTime: TimeInterval? = nil
@@ -23,6 +22,11 @@ struct AIPoint: Codable {
     var location: String? = nil
     var room: String? = nil
     var customFields: [String]? = nil
+
+    var surfaceType: String? = nil
+    var fixedLocation: String? {
+        location ?? surfaceType
+    }
 }
 
 enum AIPointProperty: CaseIterable {
@@ -60,7 +64,7 @@ enum AIPointProperty: CaseIterable {
         case .isImportant: .equality(name: name, keyPath: \.isImportant)
         case .workspace: .equality(name: name, keyPath: \.workspace)
         case .category: .equality(name: name, keyPath: \.category)
-        case .location: .equality(name: name, keyPath: \.location)
+        case .location: .equality(name: name, keyPath: \.fixedLocation)
         case .room: .equality(name: name, keyPath: \.room)
         case .usersInCharge: .completeness(name: name, keyPath: \.usersInCharge)
         case .customFields: .completeness(name: name, keyPath: \.customFields)

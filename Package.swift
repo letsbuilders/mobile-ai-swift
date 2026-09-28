@@ -1,4 +1,4 @@
-// swift-tools-version: 6.3
+// swift-tools-version: 6.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "MobileAI",
     platforms: [
-        .iOS(.v17),
+        .iOS(.v27),
         .macOS(.v26),
         .visionOS(.v26)
     ],
@@ -38,6 +38,8 @@ let package = Package(
         .testTarget(name: "MobileAITests",
                     dependencies: [
                         "MobileAI"
+                   ], resources: [
+                    .copy("Samples/CreatePoint")
                    ])
 
     ],

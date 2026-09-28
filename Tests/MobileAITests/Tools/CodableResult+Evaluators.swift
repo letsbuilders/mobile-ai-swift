@@ -12,6 +12,22 @@ public enum CodableResult<Success: Sendable & Codable>: Sendable, Codable {
     case success(result: Success)
 }
 
+public extension CodableResult {
+    var unsafeSuccess: Success {
+        guard let success else {
+            preconditionFailure()
+        }
+        return success
+    }
+
+    var success: Success? {
+        switch self {
+        case .success(result: let result): result
+        case .failure: nil
+        }
+    }
+}
+
 extension Evaluator {
     static func onSuccess<Success>(metric: Metric, evaluate: @escaping (Success, Success) -> Metric) -> Evaluator
         where Input == ModelSample<CodableResult<Success>> {

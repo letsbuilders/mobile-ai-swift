@@ -55,8 +55,8 @@
     "John"
     "Marzena"
 
-- location field values:
-    "Undefined" (default)
+- surfaceType field values:
+    "Unknown" (default)
     "Floor"
     "Wall"
     "Ceiling"

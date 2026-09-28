@@ -10,7 +10,7 @@
         "dueDate": "2026-09-04T00:00:00Z",
         "usersInCharge": [],
         "workspace": "Client handover",
-        "location": "Undefined",
+        "location": "Ceiling",
         "category": "Special Techniques|Fire detection - Sprinklers",
         "room": "Building 2|4th Floor",
         "customFields": ["Priority|High", "Phase|Construction"]

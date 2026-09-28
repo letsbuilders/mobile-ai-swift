@@ -36,20 +36,29 @@ public class AITestData {
         }
     }
 
-    private func loadTestDescriptors<Expected: Codable>(prefix: String, type: Expected.Type) throws -> [AITest<Expected>] {
-        let bundle = Bundle(for: Self.self)
+    private func loadTestDescriptors<Expected: Codable>(prefix: String,
+                                                        directory: String = "CreatePoint",
+                                                        type: Expected.Type) throws -> [AITest<Expected>] {
+        let bundle = Bundle.module //(for: Self.self)
         var counter = 1
         var results = [AITest<Expected>]()
 
         repeat {
-            let fileName = "\(prefix)test\(String(format: "%03d", counter))"
-            if let url = bundle.url(forResource: fileName, withExtension: "json") {
+            let id = String(format: "%03d", counter)
+            let fileName = "\(prefix)test\(id)"
+            if let url = bundle.url(forResource: fileName,
+                                    withExtension: "json",
+                                    subdirectory: directory) {
                 let data = try Data(contentsOf: url)
                 let descriptor = try JSONDecoder().decode(AITestDescriptor<Expected>.self, from: data)
-                guard let catalogUrl = bundle.url(forResource: descriptor.catalogFile, withExtension: nil) else {
+                guard let catalogUrl = bundle.url(forResource: descriptor.catalogFile,
+                                                  withExtension: nil,
+                                                  subdirectory: directory) else {
                     preconditionFailure("Catalog file \(descriptor.catalogFile) not found")
                 }
-                guard let instructionsUrl = bundle.url(forResource: descriptor.instructionsFile, withExtension: nil) else {
+                guard let instructionsUrl = bundle.url(forResource: descriptor.instructionsFile,
+                                                       withExtension: nil,
+                                                       subdirectory: directory) else {
                     preconditionFailure("Instructions file \(descriptor.instructionsFile) not found")
                 }
                 let catalog = try String(contentsOf: catalogUrl, encoding: .utf8)
@@ -64,10 +73,14 @@ public class AITestData {
                 print(instructions)
                 counter += 1
             } else {
+                print("Nothing found \(fileName)")
                 counter = -1
             }
         } while counter > 0
 
+        guard results.count > 0 else {
+            preconditionFailure("Not samples found for prefix: \(prefix)")
+        }
         return results
     }
 }

@@ -10,7 +10,7 @@
         "dueDate": "2026-09-08T00:00:00Z",
         "usersInCharge": ["Bogdan"],
         "workspace": "Public list",
-        "location": "Undefined",
+        "location": "Unknown",
         "category": "Safety and Health|Worksite installation",
         "room": "Building 1|Lobby",
         "customFields": ["Priority|High"]

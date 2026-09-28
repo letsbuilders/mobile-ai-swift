@@ -14,21 +14,22 @@ import MLXLLM
 import Testing
 @testable import MobileAI
 
-struct PointEvaluation: Evaluation {
-    let json = Metric("Json")
-    let propertiesAccuracy = Metric("Properties Accuracy")
-    let runningTime = Metric("Time")
+protocol CreatePointEvaluation: Evaluation where Sample == ModelSample<CodableResult<AIPoint>>,
+                                                 Subject == ModelSubject<CodableResult<AIPoint>>,
+                                                 SampleLoader == ArrayLoader<ModelSample<CodableResult<AIPoint>>> {
+    var dataset: ArrayLoader<ModelSample<CodableResult<AIPoint>>> { get }
+    var kind: AIModelKind { get }
+    var maxTokens: Int? { get }
+}
 
-    let dataset: ArrayLoader<ModelSample<CodableResult<AIPoint>>>
-    let kind: AIModelKind
-    let maxTokens: Int?
-
-    init(kind: AIModelKind, samples: [ModelSample<CodableResult<AIPoint>>], maxTokens: Int? = nil) {
-        print("========== \(kind.name)")
-        self.kind = kind
-        self.maxTokens = maxTokens
-        self.dataset = ArrayLoader(samples: samples)
+extension CreatePointEvaluation {
+    var maxTokens: Int? {
+        nil
     }
+
+    var json: Metric { Metric("Json") }
+    var propertiesAccuracy: Metric  { Metric("Properties Accuracy") }
+    var runningTime: Metric { Metric("Time") }
 
     subscript(kind: AIPointProperty) -> PropertyEvaluator<AIPoint> {
         kind.evaluator
@@ -42,8 +43,8 @@ struct PointEvaluation: Evaluation {
         PropertyArrayEvaluators(name: "Custom Fields", keyPath: \.customFields)
     }
 
-    var evaluators: Evaluators {
-        Evaluator { input, subject in
+    @EvaluatorsBuilder<Sample, Subject> var evaluators: Evaluators {
+        Evaluator<ModelSample<CodableResult<AIPoint>>> { input, subject in
             switch subject.value {
             case .failure(_, let error):
                 return json.failing(rationale: error)
@@ -107,14 +108,14 @@ struct PointEvaluation: Evaluation {
         let start = Date.now
         defer {
             let end = Date.now
-            print("Finished test (\(kind.name)) in \(end.timeIntervalSince1970 - start.timeIntervalSince1970) sec")
+            print("Test finished in (\(kind.name)) in \(end.timeIntervalSince1970 - start.timeIntervalSince1970) sec (\(sample.promptDescription.prefix(40))...)")
         }
-
-        // #if os(iOS)
+/*
+        let limit = 6144 * 1024 * 1024
         Memory.clearCache()
-        Memory.memoryLimit = 6144 * 1024 * 1024
-        Memory.cacheLimit = 6144 * 1024 * 1024
-        // #endif
+        Memory.memoryLimit = limit
+        Memory.cacheLimit = limit
+ */
 
         do {
             let service = try AIServiceFactory.make(kind: kind)
@@ -141,13 +142,6 @@ struct PointEvaluation: Evaluation {
         }
     }
 }
-/*
-public extension Evaluator {
-    static func accuracy<Success>(name: String, _ evaluators: [PropertyEvaluator<Success>]) -> Evaluator<Input> where Input == ModelSample<CodableResult<Success>> {
-        evaluators.map { $0.accuracy }.combinedMetric(name: name, evaluators, metricMapper: { $0.accuracy })
-    }
-}
-*/
 
 public extension Array {
     func combinedMetric<Success>(metric: Metric) -> Evaluator<ModelSample<CodableResult<Success>>> where Element == PropertyEvaluator<Success> {

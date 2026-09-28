@@ -10,7 +10,7 @@
         "dueDate": "2026-09-02T00:00:00Z",
         "usersInCharge": [],
         "workspace": "Internal handover",
-        "location": "Undefined",
+        "location": "Floor",
         "category": "Special Techniques|Bathrooms",
         "room": null,
         "customFields": ["Priority|High"]

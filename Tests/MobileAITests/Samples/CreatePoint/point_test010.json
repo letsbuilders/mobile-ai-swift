@@ -10,7 +10,7 @@
         "dueDate": null,
         "usersInCharge": [],
         "workspace": "Client handover",
-        "location": "Unknown",
+        "location": "Ceiling",
         "category": "Special Techniques|Fire detection - Sprinklers",
         "room": "Building 2|4th Floor",
         "customFields": ["Priority|High"]
