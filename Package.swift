@@ -7,8 +7,7 @@ let package = Package(
     name: "MobileAI",
     platforms: [
         .iOS(.v27),
-        .macOS(.v26),
-        .visionOS(.v26)
+        .macOS(.v27)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
