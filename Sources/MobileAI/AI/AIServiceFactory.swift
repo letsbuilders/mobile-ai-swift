@@ -117,8 +117,7 @@ public extension LLMRegistry {
             ling_mini_2_2bit,
             lfm2_8b_a1b_3bit_mlx,
             nanochat_d20_mlx,
-            gpt_oss_20b_MXFP4_Q8,
-            jamba_3b,
+            gpt_oss_20b_MXFP4_Q8
         ]
     }
 }
