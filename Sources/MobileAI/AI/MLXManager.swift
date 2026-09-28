@@ -29,6 +29,7 @@ public class MLXManager: Loggable, AIService {
     }
 
     public func downloadModel(_ progressBlock: @escaping (Progress) -> Void) async throws {
+        Log.info(Self.self, "Download model \(config.name)")
         self.model = try await loadModelContainer(
             from: #hubDownloader(),
             using: #huggingFaceTokenizerLoader(),

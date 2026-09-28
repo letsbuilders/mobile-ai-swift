@@ -1,0 +1,26 @@
+{
+  "configurations" : [
+    {
+      "id" : "98BBFF74-C130-469A-A918-A75BED328F1A",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "testInteropMode" : "complete"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "MobileAITests",
+        "name" : "MobileAITests"
+      }
+    }
+  ],
+  "version" : 1
+}
