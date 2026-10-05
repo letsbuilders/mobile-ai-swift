@@ -9,18 +9,17 @@ import SwiftUI
 
 public struct AIModelSelector: View {
     @State public var kind: AIModelKind = .appleIntelligence
-    @Binding var service: AIService?
+    @Binding var service: AIService
     @State private var progress: Progress = .init()
     @State private var error: Error?
 
-    public init(service: Binding<AIService?>) {
+    public init(service: Binding<AIService>) {
         self._service = service
     }
 
     public func select(kind: AIModelKind) {
         do {
             self.kind = kind
-            self.service = nil
             self.error = nil
             self.progress = Progress(totalUnitCount: 1)
 
@@ -81,8 +80,4 @@ public struct AIModelSelector: View {
             select(kind: .appleIntelligence)
         }
     }
-}
-
-#Preview {
-    AIModelSelector(service: .constant(nil))
 }

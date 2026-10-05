@@ -23,9 +23,16 @@ public final class AppleIntelligence: Sendable, AIService, Loggable {
         progressBlock(progress)
     }
 
-    public func startSession(instructions: String, maxTokens: Int?) throws -> AISession {
+    public func startSession(instructions: String,
+                             tools: [any Tool]?,
+                             maxTokens: Int?) throws -> AISession {
         info("Instructions: \(instructions.replacingOccurrences(of: "\\n", with: "\n"))")
-        return Session(session: LanguageModelSession(instructions: { instructions }))
+        return Session(session: LanguageModelSession(tools: tools ?? [],
+                                                     instructions: { instructions }))
+    }
+
+    public func startSession(instructions: String, maxTokens: Int?) throws -> any AISession {
+        try startSession(instructions: instructions, tools: nil, maxTokens: maxTokens)
     }
 }
 
@@ -54,6 +61,19 @@ private struct Session: AISession, Loggable  {
             return response.asAIResponse()
         } catch {
             self.error(error, in: "session.respond(to:)")
+            throw error
+        }
+    }
+
+    public func generate<Entity: Generable>(from prompt: String, type: Entity.Type) async throws -> Entity {
+        info("Generate: \(type)")
+        info("Prompt: \(prompt)")
+        do {
+            let response = try await session.respond(generating: type, prompt: { prompt })
+            info("Generated: \(response.content)")
+            return response.content
+        } catch {
+            self.error(error, in: "session.generate(from:, type:)")
             throw error
         }
     }

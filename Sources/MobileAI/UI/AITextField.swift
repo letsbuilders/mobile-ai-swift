@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-public struct AITextField: View {
+public struct AITextField<Handler: AIHandler>: View {
     @State private var prompt: String = ""
     @State private var history: [TextEntry] = []
     @State private var isHistoryPresented = false
     @State private var isInstructionPresented = false
-    @Binding private var model: AIModel
+    @Binding private var model: AIModel<Handler>
 
-    public init(model: Binding<AIModel>) {
+    public init(model: Binding<AIModel<Handler>>) {
         self._model = model
     }
 

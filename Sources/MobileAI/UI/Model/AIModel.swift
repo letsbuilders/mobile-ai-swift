@@ -6,39 +6,141 @@
 //
 
 import Combine
+import FoundationModels
 import SwiftUI
 
+public protocol AIHandler {
+    associatedtype Response
+
+    var service: AIService { get set }
+
+    func reset()
+    func submitPrompt(_ prompt: String) async throws -> Response
+}
+
+public class TextAIHandler: AIHandler {
+    public var responsePublisher: PassthroughSubject<Result<String, Error>, Never> = .init()
+    public var service: AIService
+    public var instructions: String = ""
+    public var isInitialized: Bool = false
+    public var tools: [Any] = []
+
+    private var session: AISession?
+
+    public init(service: AIService,
+                instructions: String? = nil) {
+        self.service = service
+        self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
+    }
+
+    public func reset() {
+        self.session = nil
+        self.isInitialized = false
+    }
+
+    public func startSessionIfNeeded() throws -> AISession {
+        if let session {
+            return session
+        } else {
+            let session = try service.startSession(instructions: self.instructions, maxTokens: nil)
+            self.session = session
+            return session
+        }
+    }
+
+    public func submitPrompt(_ prompt: String) async throws -> String {
+        do {
+            let response = try await startSessionIfNeeded().respond(to: prompt).content
+            responsePublisher.send(.success(response))
+            return response
+        } catch {
+            responsePublisher.send(.failure(error))
+            throw error
+        }
+    }
+}
+
+@available(iOS 26.0, *)
+public class GenerableAIHandler<Entity: Generable>: AIHandler {
+    public var generablePublisher: PassthroughSubject<Result<Any, Error>, Never> = .init()
+    public var service: AIService
+    public var instructions: String = ""
+    public var isProcessing = false
+    public var isInitialized: Bool = false
+    public var tools: [any Tool] = []
+
+    private var session: AISession?
+
+    public init(service: AIService,
+                instructions: String? = nil,
+                tools: [any Tool],
+                adjustPrompt: @escaping (String) -> String = { $0 }) {
+        self.service = service
+        self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
+        self.tools = tools
+    }
+
+    public func reset() {
+        self.session = nil
+        self.isInitialized = false
+    }
+
+    public func startSessionIfNeeded() throws -> AISession {
+        if let session {
+            return session
+        } else {
+            let session = try service.startSession(instructions: self.instructions,
+                                                   tools: tools,
+                                                   maxTokens: nil)
+            self.session = session
+            return session
+        }
+    }
+
+    public func submitPrompt(_ prompt: String) async throws -> Entity {
+        let session = try startSessionIfNeeded()
+        do {
+            let response = try await session.generate(from: prompt, type: Entity.self)
+            generablePublisher.send(.success(response))
+            return response
+        } catch {
+            generablePublisher.send(.failure(error))
+            throw error
+        }
+    }
+}
+
+
 @Observable
-public class AIModel {
-    public var responsePublisher: PassthroughSubject<String, Never> = .init()
+public class AIModel<Handler: AIHandler> {
     public var isProcessing = false
     public var history: [TextEntry] = []
     public var adjustPrompt: (String) -> String
     public var instructions: String = ""
+    public var isInitialized: Bool = true
     public var isDownloaded: Bool = false
-    public var isInitialized: Bool = false
+    public var tools: [Any] = []
+    public var generableType: Any.Type? = nil
+    public var handler: Handler
 
-    public var service: AIService?
-    private var session: AISession?
-
-    public init(service: AIService? = nil,
+    public init(handler: Handler,
                 instructions: String? = nil,
                 adjustPrompt: @escaping (String) -> String = { $0 }) {
-        self.service = service
+        self.handler = handler
         self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
         self.adjustPrompt = adjustPrompt
 
-        observeService()
+        observeHandler()
         observeInstructions()
     }
 
-    private func observeService() {
+    private func observeHandler() {
         withObservationTracking {
-            _ = service
+            _ = handler
         } onChange: {
-            print("Changed service \(self.service)")
+            print("Changed AI handler \(self.handler)")
             self.reset()
-            self.observeService()
+            self.observeHandler()
         }
     }
 
@@ -54,37 +156,25 @@ public class AIModel {
     }
 
     public func reset() {
-        self.session = nil
-        self.isInitialized = false
+        self.handler.reset()
         self.history = []
     }
 
     public func submitPrompt(_ prompt: String) async throws {
-        guard isProcessing == false, let service else { return }
-
-        if session == nil {
-            session = try service.startSession(instructions: self.instructions, maxTokens: nil)
-            if instructions.isEmpty == false {
-                history.append(TextEntry(author: .me, text: instructions))
-            }
-            isInitialized = true
-        }
+        guard isProcessing == false else { return }
 
         isProcessing = true
         defer { isProcessing = false }
 
-        var fullPrompt = adjustPrompt(prompt)
+        let fullPrompt = adjustPrompt(prompt)
 
-        if let session {
-            let date = Date.now
-            do {
-                history.append(TextEntry(author: .me, text: fullPrompt))
-                let response = try await session.respond(to: fullPrompt)
-                history.append(TextEntry(time: Date.now.timeIntervalSince(date), author: .ai, text: response.content))
-                responsePublisher.send(response.content)
-            } catch {
-                history.append(TextEntry(time: Date.now.timeIntervalSince(date), author: .ai, error: error, text: ""))
-            }
+        let date = Date.now
+        do {
+            history.append(TextEntry(author: .me, text: fullPrompt))
+            let response = try await handler.submitPrompt(fullPrompt)
+            history.append(TextEntry(time: Date.now.timeIntervalSince(date), author: .ai, text: String(describing: response)))
+        } catch {
+            history.append(TextEntry(time: Date.now.timeIntervalSince(date), author: .ai, error: error, text: ""))
         }
     }
 }

@@ -9,11 +9,11 @@ import SwiftUI
 
 @available(iOS 26.0, *)
 public struct AIChat: View {
-    @State private var model: AIModel
+    @State private var model: AIModel<TextAIHandler>
 
-    public init(aiService: AIService?,
+    public init(aiService: AIService,
                 chat: [TextEntry] = []) {
-        self.model = AIModel(service: aiService)
+        self.model = AIModel(handler: TextAIHandler(service: aiService))
     }
 
     public var body: some View {
