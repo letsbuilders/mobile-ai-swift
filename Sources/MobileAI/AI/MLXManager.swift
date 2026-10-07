@@ -90,6 +90,10 @@ private struct Session: AISession {
         return AIResponse(content: response)
     }
 
+    func respond(to prompt: String, schema: GenerationSchema) async throws -> GeneratedContent {
+        preconditionFailure("Not supported")
+    }
+
     @available(macOS 26.0, *)
     @available(iOS 26.0, *)
     func generate<Entity>(from prompt: String, type: Entity.Type) async throws -> Entity where Entity : Generable {

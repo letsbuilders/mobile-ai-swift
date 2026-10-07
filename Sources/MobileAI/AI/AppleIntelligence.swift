@@ -49,6 +49,22 @@ extension LanguageModelSession.Response where Content == String {
 private struct Session: AISession, Loggable  {
     var session: LanguageModelSession
 
+    func respond(to prompt: String, schema: GenerationSchema) async throws -> GeneratedContent {
+        info("Prompt: \(prompt)")
+        do {
+            let response = try await session.respond(to: prompt, schema: schema)
+
+            for entry in response.transcriptEntries {
+                info("AI: \(entry.id)\n\(entry.description)")
+            }
+
+            return response.content
+        } catch {
+            self.error(error, in: "session.respond(to:)")
+            throw error
+        }
+    }
+
     public func respond(to prompt: String) async throws -> AIResponse {
         info("Prompt: \(prompt)")
         do {
