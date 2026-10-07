@@ -90,6 +90,8 @@ private struct Session: AISession {
         return AIResponse(content: response)
     }
 
+    @available(macOS 26.0, *)
+    @available(iOS 26.0, *)
     func respond(to prompt: String, schema: GenerationSchema) async throws -> GeneratedContent {
         preconditionFailure("Not supported")
     }

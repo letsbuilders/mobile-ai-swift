@@ -62,21 +62,24 @@ public class TextAIHandler: AIHandler {
 
 @available(iOS 26.0, *)
 public class GenerableAIHandler<Entity: Generable>: AIHandler {
-    public var generablePublisher: PassthroughSubject<Result<Any, Error>, Never> = .init()
+    public var generablePublisher: PassthroughSubject<Result<Entity, Error>, Never> = .init()
     public var service: AIService
     public var instructions: String = ""
     public var isProcessing = false
     public var isInitialized: Bool = false
     public var tools: [any Tool] = []
+    public var schema: GenerationSchema?
 
     private var session: AISession?
 
     public init(service: AIService,
                 instructions: String? = nil,
+                schema: GenerationSchema? = nil,
                 tools: [any Tool],
                 adjustPrompt: @escaping (String) -> String = { $0 }) {
         self.service = service
         self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
+        self.schema = schema
         self.tools = tools
     }
 
@@ -101,6 +104,61 @@ public class GenerableAIHandler<Entity: Generable>: AIHandler {
         let session = try startSessionIfNeeded()
         do {
             let response = try await session.generate(from: prompt, type: Entity.self)
+            generablePublisher.send(.success(response))
+            return response
+        } catch {
+            generablePublisher.send(.failure(error))
+            throw error
+        }
+    }
+}
+
+@available(iOS 26.0, *)
+public class SchemaAIHandler: AIHandler {
+    public var generablePublisher: PassthroughSubject<Result<GeneratedContent, Error>, Never> = .init()
+    public var service: AIService
+    public var instructions: String = ""
+    public var isProcessing = false
+    public var isInitialized: Bool = false
+    public var tools: [any Tool] = []
+    public var schema: GenerationSchema
+
+    private var session: AISession?
+
+    public init(service: AIService,
+                instructions: String? = nil,
+                schema: GenerationSchema,
+                tools: [any Tool],
+                adjustPrompt: @escaping (String) -> String = { $0 }) {
+        self.service = service
+        self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
+        self.schema = schema
+        self.tools = tools
+
+        print("AI: Schema: \(schema)")
+    }
+
+    public func reset() {
+        self.session = nil
+        self.isInitialized = false
+    }
+
+    public func startSessionIfNeeded() throws -> AISession {
+        if let session {
+            return session
+        } else {
+            let session = try service.startSession(instructions: self.instructions,
+                                                   tools: tools,
+                                                   maxTokens: nil)
+            self.session = session
+            return session
+        }
+    }
+
+    public func submitPrompt(_ prompt: String) async throws -> GeneratedContent {
+        let session = try startSessionIfNeeded()
+        do {
+            let response = try await session.respond(to: prompt, schema: schema)
             generablePublisher.send(.success(response))
             return response
         } catch {

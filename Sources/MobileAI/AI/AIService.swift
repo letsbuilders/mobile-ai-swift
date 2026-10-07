@@ -20,6 +20,8 @@ public nonisolated protocol AIService: Sendable {
 
 public nonisolated protocol AISession: Sendable {
     func respond(to prompt: String) async throws -> AIResponse
+    @available(macOS 26.0, *)
+    @available(iOS 26.0, *)
     func respond(to prompt: String, schema: GenerationSchema) async throws -> GeneratedContent
     @available(macOS 26.0, *)
     @available(iOS 26.0, *)
