@@ -44,6 +44,12 @@ public struct SpeechButton: View {
                 await speechRecognizer.requestAuthorization()
             }
         }
+        .onDisappear() {
+            Task {
+                await speechRecognizer.shutdown()
+
+            }
+        }
     }
 }
 

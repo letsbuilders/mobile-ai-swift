@@ -33,6 +33,31 @@ public actor SpeechEngine: ObservableObject, Loggable {
         recognizer = speechRecognizer
     }
 
+    deinit {
+        shutdown()
+    }
+
+    public func shutdown() {
+        Log.info(Self.self, "Shutdown SpeechEngine")
+
+        task?.cancel()
+        task = nil
+
+        request?.endAudio()
+        request = nil
+
+        if engine.isRunning {
+            engine.stop()
+            engine.inputNode.removeTap(onBus: 0)
+        }
+
+        let session = audioSession
+        DispatchQueue.global(qos: .utility).async {
+            try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        }
+    }
+
+    /*
     public func transcribe(onReady: @escaping () async -> Void = {},
                            onResult: @escaping (String, Bool) -> Void) async throws -> Result<String, Error> {
         guard !isTranscribing else {
@@ -73,8 +98,8 @@ public actor SpeechEngine: ObservableObject, Loggable {
         let recordingFormat = inputNode.outputFormat(forBus: 0)
 
         await checkTime("Install tap") {
-            inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { buffer, time in
-                request.append(buffer)
+            inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { [weak request] buffer, time in
+                request?.append(buffer)
             }
         }
 
@@ -112,6 +137,97 @@ public actor SpeechEngine: ObservableObject, Loggable {
                         continuation.resume(returning: .success(finalText))
                     } else {
                         finalText = text
+                    }
+                }
+            }
+        }
+
+        await SystemSoundPlayer.shared.playSystemSound(soundID: 1114)
+
+        defer {
+            isTranscribing = false
+            info("Recognition task finished: \(result)")
+            stop()
+        }
+
+        return result
+    }
+     */
+    public func transcribe(onReady: @escaping () async -> Void = {},
+                           onResult: @escaping (String, Bool) -> Void) async throws -> Result<String, Error> {
+        guard !isTranscribing else {
+            error("Already transcribing")
+            return .failure(ServiceError.alreadyTranscribing)
+        }
+
+        guard let recognizer else {
+            error("No recognizer")
+            return .success("")
+        }
+
+        isTranscribing = true
+
+        info("Create audio session")
+
+        try await checkTime("Audio session") {
+            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: .mixWithOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        }
+
+        let localRequest = SFSpeechAudioBufferRecognitionRequest()
+        localRequest.shouldReportPartialResults = true
+        self.request = localRequest
+
+        let inputNode = engine.inputNode
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+
+        await checkTime("Install tap") { [weak localRequest] in
+            inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { buffer, _ in
+                localRequest?.append(buffer)
+            }
+        }
+
+        await SystemSoundPlayer.shared.playAlertSound(soundID: 1113)
+
+        await checkTime("Prepare engine") {
+            engine.prepare()
+        }
+
+        try await checkTime("Start engine") {
+            try engine.start()
+        }
+
+        await onReady()
+
+        let result: Result<String, Error> = await withCheckedContinuation { continuation in
+            info("Start listening")
+            var finalText = ""
+            var hasResumed = false
+
+            task = recognizer.recognitionTask(with: localRequest) { [weak self] result, error in
+                guard let self else { return }
+
+                Task { [weak self] in
+                    guard let self, await self.isTranscribing else { return }
+
+                    if let error {
+                        await self.error(error, in: "recognition task callback")
+                        if !hasResumed {
+                            hasResumed = true
+                            continuation.resume(returning: .failure(error))
+                        }
+                    } else if let result {
+                        let text = result.bestTranscription.formattedString
+                        onResult(text, result.isFinal)
+
+                        if result.isFinal {
+                            if !hasResumed {
+                                hasResumed = true
+                                continuation.resume(returning: .success(text))
+                            }
+                        } else {
+                            finalText = text
+                        }
                     }
                 }
             }

@@ -40,6 +40,10 @@ public final actor SpeechRecognizer: Sendable, Loggable {
         }
     }
 
+    public func shutdown() async {
+        await engine?.shutdown()
+    }
+
     public func transcribe() async throws -> String {
         guard let engine, !isTranscribing else {
             return ""
