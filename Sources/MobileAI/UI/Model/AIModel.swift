@@ -13,6 +13,7 @@ public protocol AIHandler {
     associatedtype Response
 
     var service: AIService { get set }
+    var instructions: String { get set }
 
     func reset()
     func submitPrompt(_ prompt: String) async throws -> Response
@@ -188,8 +189,11 @@ public class AIModel<Handler: AIHandler> {
                 showMicrophoneButton: Bool = true,
                 showInstructionsButton: Bool = false,
                 adjustPrompt: @escaping (String) -> String = { $0 }) {
+        var handler = handler
+        handler.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
+
         self.handler = handler
-        self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
+        self.instructions = handler.instructions
         self.adjustPrompt = adjustPrompt
         self.showMicrophoneButton = showMicrophoneButton
         self.showInstructionsButton = showInstructionsButton
@@ -213,6 +217,8 @@ public class AIModel<Handler: AIHandler> {
             instructions
         } onChange: {
             DispatchQueue.main.async {
+                self.handler.instructions = self.instructions
+                self.handler.reset()
                 UserDefaults.standard.set(self.instructions, forKey: "AI.Instructions")
                 self.observeInstructions()
             }
