@@ -180,13 +180,19 @@ public class AIModel<Handler: AIHandler> {
     public var tools: [Any] = []
     public var generableType: Any.Type? = nil
     public var handler: Handler
+    public var showMicrophoneButton = false
+    public var showInstructionsButton = false
 
     public init(handler: Handler,
                 instructions: String? = nil,
+                showMicrophoneButton: Bool = true,
+                showInstructionsButton: Bool = false,
                 adjustPrompt: @escaping (String) -> String = { $0 }) {
         self.handler = handler
         self.instructions = instructions ?? UserDefaults.standard.string(forKey: "AI.Instructions") ?? ""
         self.adjustPrompt = adjustPrompt
+        self.showMicrophoneButton = showMicrophoneButton
+        self.showInstructionsButton = showInstructionsButton
 
         observeHandler()
         observeInstructions()

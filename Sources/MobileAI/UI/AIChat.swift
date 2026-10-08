@@ -13,7 +13,8 @@ public struct AIChat: View {
 
     public init(aiService: AIService,
                 chat: [TextEntry] = []) {
-        self.model = AIModel(handler: TextAIHandler(service: aiService))
+        self.model = AIModel(handler: TextAIHandler(service: aiService),
+                             showInstructionsButton: false)
     }
 
     public var body: some View {

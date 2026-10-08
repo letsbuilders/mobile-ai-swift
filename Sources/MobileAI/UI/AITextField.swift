@@ -21,7 +21,8 @@ public struct AITextField<Handler: AIHandler>: View {
     public var body: some View {
         HStack {
             SpeechTextField(model.isInitialized ? "Enter prompt for AI or use microphone" : "Enter instructions for AI or use microphone",
-                            text: $prompt)
+                            text: $prompt,
+                            showMicrophoneButton: model.showMicrophoneButton)
             .onSubmit { prompt in
                 guard !prompt.isEmpty else { return }
                 Task {
@@ -40,13 +41,15 @@ public struct AITextField<Handler: AIHandler>: View {
             }
             .buttonStyle(.plain)
 
-            Button {
-                isInstructionPresented = true
-            } label: {
-                Image(systemName: "list.clipboard")
-                    .foregroundStyle(.tint)
+            if model.showInstructionsButton {
+                Button {
+                    isInstructionPresented = true
+                } label: {
+                    Image(systemName: "list.clipboard")
+                        .foregroundStyle(.tint)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
 
             if model.isProcessing {
                 ProgressView()

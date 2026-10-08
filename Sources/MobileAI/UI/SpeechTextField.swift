@@ -15,11 +15,14 @@ public struct SpeechTextField: View, Loggable {
     @State private var buttonContent: String = ""
     @State private var showPermissionAlert = false
     @FocusState private var isFocused: Bool
+    private var showMicrophoneButton: Bool
 
     public init(_ placeholder: String = "Type or tap the mic to speak",
-                text: Binding<String>) {
+                text: Binding<String>,
+                showMicrophoneButton: Bool = true) {
         self.placeholder = placeholder
         self._text = text
+        self.showMicrophoneButton = showMicrophoneButton
     }
 
     public var body: some View {
@@ -35,12 +38,14 @@ public struct SpeechTextField: View, Loggable {
                 .animation(.easeOut(duration: 0.15), value: isFocused)
 
 #if !os(macOS)
-            SpeechButton(text: $buttonContent)
-                .onSubmit { text in
-                    Log.info(Self.self, "Submit content from speech button: \(text)")
-                    self.textFieldContent = text
-                    self.text = text
-                }
+            if showMicrophoneButton {
+                SpeechButton(text: $buttonContent)
+                    .onSubmit { text in
+                        Log.info(Self.self, "Submit content from speech button: \(text)")
+                        self.textFieldContent = text
+                        self.text = text
+                    }
+            }
 #endif
         }
         .onChange(of: text) { oldValue, newValue in
