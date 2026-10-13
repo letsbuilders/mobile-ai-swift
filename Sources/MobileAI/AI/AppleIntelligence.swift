@@ -56,7 +56,7 @@ private class Session: AISession, Loggable  {
     }
 
     func respond(to prompt: String, schema: GenerationSchema) async throws -> GeneratedContent {
-        let timeout: Duration = .seconds(1)
+        let timeout: Duration = .seconds(60)
 
         info("Prompt: \(prompt)")
 
