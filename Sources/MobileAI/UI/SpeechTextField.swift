@@ -28,13 +28,13 @@ public struct SpeechTextField: View, Loggable {
     public var body: some View {
         HStack(spacing: 8) {
             TextField(placeholder, text: $textFieldContent)
+                .textFieldStyle(.roundedBorder)
                 .submitLabel(.done)
                 .focused($isFocused)
                 .onSubmit {
                     Log.info(Self.self, "Submit content from field: \(textFieldContent)")
                     self.text = textFieldContent
                 }
-                .style(isFocused: isFocused)
                 .animation(.easeOut(duration: 0.15), value: isFocused)
 
 #if !os(macOS)

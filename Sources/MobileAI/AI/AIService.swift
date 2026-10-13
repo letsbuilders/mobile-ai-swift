@@ -26,6 +26,7 @@ public nonisolated protocol AISession: Sendable {
     @available(macOS 26.0, *)
     @available(iOS 26.0, *)
     func generate<Entity: Generable>(from prompt: String, type: Entity.Type) async throws -> Entity
+    func stop()
 }
 
 public struct AIResponse {

@@ -30,6 +30,7 @@ public struct AIChat: View {
             AIComplexTextField(model: $model)
         }
         .padding()
+        .background(.gray)
     }
 }
 

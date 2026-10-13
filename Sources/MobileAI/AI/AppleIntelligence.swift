@@ -46,22 +46,53 @@ extension LanguageModelSession.Response where Content == String {
 
 @available(macOS 26.0, *)
 @available(iOS 26.0, *)
-private struct Session: AISession, Loggable  {
+private class Session: AISession, Loggable  {
     var session: LanguageModelSession
+    var responseTask: Task<LanguageModelSession.Response<GeneratedContent>, Error>?
+
+    init(session: LanguageModelSession) {
+        self.session = session
+        self.responseTask = nil
+    }
 
     func respond(to prompt: String, schema: GenerationSchema) async throws -> GeneratedContent {
+        let timeout: Duration = .seconds(1)
+
         info("Prompt: \(prompt)")
+
+        let responseTask = Task {
+            try await session.respond(to: prompt, schema: schema)
+        }
+        self.responseTask = responseTask
+
+        let timeoutTask = Task {
+            try await Task.sleep(for: timeout)
+            responseTask.cancel() // Instantly stops the session's generation
+        }
+
+        defer { timeoutTask.cancel() }
+
         do {
-            let response = try await session.respond(to: prompt, schema: schema)
+            let response = try await responseTask.value
 
             for entry in response.transcriptEntries {
                 info("AI: \(entry.id)\n\(entry.description)")
             }
 
+            info("AI: Response: \(response.content)")
+            self.responseTask = nil
             return response.content
         } catch {
-            self.error(error, in: "session.respond(to:)")
-            throw error
+            self.responseTask = nil
+            // Handle explicit task cancellation vs standard errors
+            if Task.isCancelled {
+                let cancellationError = CancellationError()
+                self.error(cancellationError, in: "session.respond(to:) timed out after \(timeout)")
+                throw cancellationError
+            } else {
+                self.error(error, in: "session.respond(to:)")
+                throw error
+            }
         }
     }
 
@@ -92,5 +123,11 @@ private struct Session: AISession, Loggable  {
             self.error(error, in: "session.generate(from:, type:)")
             throw error
         }
+    }
+
+    public func stop() {
+        info("Stop session")
+        responseTask?.cancel()
+        responseTask = nil
     }
 }

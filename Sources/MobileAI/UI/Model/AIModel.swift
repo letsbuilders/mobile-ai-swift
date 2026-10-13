@@ -17,6 +17,7 @@ public protocol AIHandler {
 
     func reset()
     func submitPrompt(_ prompt: String) async throws -> Response
+    func stop()
 }
 
 public class TextAIHandler: AIHandler {
@@ -58,6 +59,10 @@ public class TextAIHandler: AIHandler {
             responsePublisher.send(.failure(error))
             throw error
         }
+    }
+
+    public func stop() {
+        session?.stop()
     }
 }
 
@@ -111,6 +116,10 @@ public class GenerableAIHandler<Entity: Generable>: AIHandler {
             generablePublisher.send(.failure(error))
             throw error
         }
+    }
+
+    public func stop() {
+        session?.stop()
     }
 }
 
@@ -166,6 +175,10 @@ public class SchemaAIHandler: AIHandler {
             generablePublisher.send(.failure(error))
             throw error
         }
+    }
+
+    public func stop() {
+        session?.stop()
     }
 }
 
@@ -246,6 +259,10 @@ public class AIModel<Handler: AIHandler> {
         } catch {
             history.append(TextEntry(time: Date.now.timeIntervalSince(date), author: .ai, error: error, text: ""))
         }
+    }
+
+    public func stop() {
+        handler.stop()
     }
 }
 

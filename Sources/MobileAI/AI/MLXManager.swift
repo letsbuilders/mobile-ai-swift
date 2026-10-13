@@ -101,6 +101,9 @@ private struct Session: AISession {
     func generate<Entity>(from prompt: String, type: Entity.Type) async throws -> Entity where Entity : Generable {
         preconditionFailure("Not supported")
     }
+
+    public func stop() {
+    }
 }
 
 @available(macOS 26.0, *)

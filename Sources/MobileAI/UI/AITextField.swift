@@ -19,7 +19,7 @@ public struct AITextField<Handler: AIHandler>: View {
     }
 
     public var body: some View {
-        HStack {
+        HStack(spacing: 8) {
             SpeechTextField(model.isInitialized ? "Enter prompt for AI or use microphone" : "Enter instructions for AI or use microphone",
                             text: $prompt,
                             showMicrophoneButton: model.showMicrophoneButton)
@@ -74,6 +74,9 @@ public struct AITextField<Handler: AIHandler>: View {
             if oldValue != newValue {
                 model.reset()
             }
+        }
+        .onDisappear {
+            model.stop()
         }
     }
 }
